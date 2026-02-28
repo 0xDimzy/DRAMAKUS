@@ -149,6 +149,12 @@ export default function Navbar() {
                 <button onClick={() => handlePlatformChange('netshort')} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${platform === 'netshort' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>NetShort</button>
                 <button onClick={() => handlePlatformChange('reelife')} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${platform === 'reelife' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}>Reelife</button>
               </div>
+              <form onSubmit={handleSearch} className="relative group">
+                <input type="text" placeholder="Search dramas..." className="bg-black/40 border border-gray-700 text-white text-sm rounded-full focus:ring-red-600 focus:border-red-600 block w-44 pl-10 p-2 transition-all focus:w-64 backdrop-blur-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400 group-focus-within:text-red-600 transition-colors" />
+                </div>
+              </form>
               <div className="flex items-baseline space-x-6">
                 {navLinks.map((link) => (
                   <Link key={link.path} to={link.path} className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname === link.path ? 'text-white font-bold' : 'text-gray-300 hover:text-white'}`}>
@@ -161,13 +167,6 @@ export default function Navbar() {
 
           <div className="hidden md:block">
             <div className="ml-4 flex items-center md:ml-6 space-x-6">
-              <form onSubmit={handleSearch} className="relative group">
-                <input type="text" placeholder="Search dramas..." className="bg-black/40 border border-gray-700 text-white text-sm rounded-full focus:ring-red-600 focus:border-red-600 block w-full pl-10 p-2 transition-all focus:w-72 w-40 backdrop-blur-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-gray-400 group-focus-within:text-red-600 transition-colors" />
-                </div>
-              </form>
-
               <div className="relative group">
                 <button
                   type="button"
@@ -249,6 +248,11 @@ export default function Navbar() {
                 <button onClick={() => handlePlatformChange('reelife')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${platform === 'reelife' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-400'}`}>Reelife</button>
               </div>
 
+              <form onSubmit={handleSearch} className="relative mb-2">
+                <input type="text" placeholder="Search dramas..." className="bg-gray-900 border border-gray-800 text-white text-sm rounded-lg block w-full p-3 pl-10" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                <Search className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
+              </form>
+
               {navLinks.map((link) => (
                 <Link key={link.path} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-lg text-base font-medium transition-all ${location.pathname === link.path ? 'bg-red-600/10 text-red-600 border-l-4 border-red-600' : 'text-gray-300 hover:bg-gray-800'}`}>
                   {link.name}
@@ -267,11 +271,6 @@ export default function Navbar() {
                     ))}
                   </div>
                 </div>
-
-                <form onSubmit={handleSearch} className="relative">
-                  <input type="text" placeholder="Search dramas..." className="bg-gray-900 border border-gray-800 text-white text-sm rounded-lg block w-full p-3 pl-10" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                  <Search className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
-                </form>
 
                 {user ? (
                   <div className="rounded-lg border border-gray-800 bg-black/30 p-3">
