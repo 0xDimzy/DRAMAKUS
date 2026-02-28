@@ -144,7 +144,9 @@ export default function Watch() {
       poster: fallbackDrama.poster,
     };
 
-    updateProgress(normalizedDrama, currentEpisode.id, currentSecond, platform);
+    const episodeIndex = episodes.findIndex((e) => String(e.id) === String(currentEpisode.id));
+    const episodeNo = episodeIndex >= 0 ? episodeIndex + 1 : undefined;
+    updateProgress(normalizedDrama, currentEpisode.id, currentSecond, platform, episodeNo);
   };
 
   const getBackDramaState = (): Drama => {
