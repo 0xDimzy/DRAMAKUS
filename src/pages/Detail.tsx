@@ -206,7 +206,6 @@ export default function Detail() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-sm md:text-base">{ep.title}</h3>
-                  <p className="text-xs text-gray-400">Durasi: {ep.duration || 'Belum tersedia'}</p>
                 </div>
                 <Play className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition" />
               </Link>
