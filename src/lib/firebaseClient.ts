@@ -17,6 +17,12 @@ type FirebaseAuthUser = {
   photoURL?: string | null;
 };
 
+type FirebaseUserProfilePayload = {
+  name: string;
+  email: string;
+  picture?: string;
+};
+
 let initialized = false;
 let initPromise: Promise<boolean> | null = null;
 
@@ -123,6 +129,29 @@ export const signOutFirebase = async () => {
   if (!ok) return;
   const auth = getAuth();
   await auth?.signOut?.();
+};
+
+export const saveUserProfileToCloud = async (uid: string, profile: FirebaseUserProfilePayload) => {
+  if (!uid) return;
+  if (!profile?.name || !profile?.email) return;
+
+  const ok = await initializeFirebase();
+  if (!ok) return;
+
+  const db = getDb();
+  if (!db) return;
+
+  const payload: Record<string, any> = {
+    name: String(profile.name).trim(),
+    email: String(profile.email).trim().toLowerCase(),
+    updatedAt: Date.now(),
+  };
+
+  if (profile.picture) {
+    payload.picture = String(profile.picture).trim();
+  }
+
+  await db.collection('users').doc(uid).set(payload, { merge: true });
 };
 
 export const onFirebaseAuthState = async (cb: (user: FirebaseAuthUser | null) => void) => {
