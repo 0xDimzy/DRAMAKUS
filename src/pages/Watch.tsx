@@ -197,7 +197,7 @@ export default function Watch() {
 
   if (!user) {
     return (
-      <div className="bg-black h-screen flex items-center justify-center text-white px-4">
+      <div className="bg-black min-h-[100dvh] flex items-center justify-center text-white px-4">
         <div className="max-w-md text-center">
           <p className="text-2xl font-bold mb-3">Login Dibutuhkan</p>
           <p className="text-gray-400 mb-6">Untuk menonton film, silakan login Google terlebih dahulu dari menu profil.</p>
@@ -213,16 +213,16 @@ export default function Watch() {
     );
   }
 
-  if (loading) return <div className="bg-black h-screen flex items-center justify-center text-white">Loading...</div>;
-  if (loadError) return <div className="bg-black h-screen flex items-center justify-center text-white px-4 text-center">{loadError}</div>;
-  if (!currentEpisode) return <div className="bg-black h-screen flex items-center justify-center text-white">Episode not found</div>;
+  if (loading) return <div className="bg-black min-h-[100dvh] flex items-center justify-center text-white">Loading...</div>;
+  if (loadError) return <div className="bg-black min-h-[100dvh] flex items-center justify-center text-white px-4 text-center">{loadError}</div>;
+  if (!currentEpisode) return <div className="bg-black min-h-[100dvh] flex items-center justify-center text-white">Episode not found</div>;
   const currentEpisodeIndex = episodes.findIndex((e) => e.id === currentEpisode.id);
   const hasPrevious = currentEpisodeIndex > 0;
   const hasNext = currentEpisodeIndex < episodes.length - 1;
 
   return (
     <div
-      className="relative h-screen w-full bg-black overflow-hidden group"
+      className="fixed inset-0 w-full bg-black overflow-hidden group"
       onTouchStart={revealMobileEpisodeNav}
       onClick={revealMobileEpisodeNav}
     >
