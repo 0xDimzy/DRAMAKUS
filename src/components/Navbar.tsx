@@ -7,6 +7,7 @@ import {
   initializeFirebase,
   loadContinueWatchingFromCloud,
   onFirebaseAuthState,
+  saveUserProfileToCloud,
   signInWithFirebaseGoogle,
   signOutFirebase,
 } from '../lib/firebaseClient';
@@ -54,6 +55,16 @@ export default function Navbar() {
           name: firebaseUser.displayName || firebaseUser.email,
           picture: firebaseUser.photoURL || undefined,
         });
+
+        try {
+          await saveUserProfileToCloud(firebaseUser.uid, {
+            name: firebaseUser.displayName || firebaseUser.email,
+            email: firebaseUser.email,
+            picture: firebaseUser.photoURL || undefined,
+          });
+        } catch (error) {
+          console.error('Failed to save user profile to cloud', error);
+        }
 
         try {
           const cloudEntries = await loadContinueWatchingFromCloud(firebaseUser.uid);
