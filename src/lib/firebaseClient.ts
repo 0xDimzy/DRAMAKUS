@@ -23,6 +23,13 @@ type FirebaseUserProfilePayload = {
   picture?: string;
 };
 
+type ReportPayload = {
+  title: string;
+  description: string;
+  platform: string;
+  page?: string;
+};
+
 let initialized = false;
 let initPromise: Promise<boolean> | null = null;
 
@@ -220,6 +227,31 @@ export const loadContinueWatchingFromCloud = async (uid: string): Promise<Contin
       timestamp: Number(item.timestamp || Date.now()),
     }))
     .filter((entry: ContinueWatchingEntry) => Boolean(entry.dramaId));
+};
+
+export const saveIssueReportToCloud = async (uid: string, report: ReportPayload) => {
+  if (!uid) return;
+  const title = String(report?.title || '').trim();
+  const description = String(report?.description || '').trim();
+  const platform = String(report?.platform || '').trim();
+  if (!title || !description || !platform) return;
+
+  const ok = await initializeFirebase();
+  if (!ok) return;
+
+  const db = getDb();
+  if (!db) return;
+
+  const payload: Record<string, any> = {
+    title,
+    description,
+    platform,
+    page: String(report?.page || '').trim() || 'unknown',
+    status: 'open',
+    createdAt: Date.now(),
+  };
+
+  await db.collection('users').doc(uid).collection('reports').add(payload);
 };
 
 export const clearContinueWatchingInCloud = async (uid: string) => {
