@@ -200,7 +200,6 @@ export default function VideoPlayer({ url, startSeconds = 0, onEnded, onProgress
         ref={videoRef}
         className="w-full h-full"
         controls
-        controlsList="nodownload"
         playsInline
         autoPlay
       />
