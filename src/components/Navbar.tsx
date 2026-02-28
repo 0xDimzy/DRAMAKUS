@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, User, Menu, X } from 'lucide-react';
+import { Search, User, Menu, X, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import {
@@ -117,6 +117,11 @@ export default function Navbar() {
     { name: 'Dub Indo', path: '/dubindo' },
     { name: 'My List', path: '/mylist' },
   ];
+  const updateLogs = [
+    { date: '2026-02-28', text: 'Perbaikan tampilan detail episode lintas platform.' },
+    { date: '2026-02-28', text: 'Normalisasi judul episode Reelife agar konsisten.' },
+    { date: '2026-02-28', text: 'Penyempurnaan sinkronisasi continue watching.' },
+  ];
 
   return (
     <nav
@@ -155,6 +160,30 @@ export default function Navbar() {
                   <Search className="h-4 w-4 text-gray-400 group-focus-within:text-red-600 transition-colors" />
                 </div>
               </form>
+
+              <div className="relative group">
+                <button
+                  type="button"
+                  className="relative rounded-full border border-gray-700 bg-black/30 p-2 text-gray-300 transition-colors hover:text-white"
+                  aria-label="Notifikasi update"
+                >
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute -right-1 -top-1 inline-flex h-2.5 w-2.5 rounded-full bg-red-600" />
+                </button>
+                <div className="absolute right-0 mt-3 w-80 rounded-lg border border-gray-800 bg-[#141414] py-2 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  <div className="px-4 py-2 border-b border-gray-800">
+                    <p className="text-sm font-semibold text-white">Log Update</p>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto">
+                    {updateLogs.map((item, index) => (
+                      <div key={`${item.date}-${index}`} className="px-4 py-3 border-b border-gray-900 last:border-b-0">
+                        <p className="text-[11px] text-gray-500">{item.date}</p>
+                        <p className="text-sm text-gray-200 mt-1">{item.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               <div className="relative group">
                 <button className="flex items-center gap-2 text-gray-300 hover:text-white transition-all rounded-md border border-gray-700 bg-black/30 px-2 py-1.5">
@@ -219,6 +248,18 @@ export default function Navbar() {
               ))}
 
               <div className="pt-4 border-t border-gray-800 mt-4 space-y-3">
+                <div className="rounded-lg border border-gray-800 bg-black/30 p-3">
+                  <p className="text-sm font-semibold text-white mb-2">Log Update</p>
+                  <div className="space-y-2">
+                    {updateLogs.slice(0, 2).map((item, index) => (
+                      <div key={`mobile-${item.date}-${index}`}>
+                        <p className="text-[11px] text-gray-500">{item.date}</p>
+                        <p className="text-xs text-gray-200">{item.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <form onSubmit={handleSearch} className="relative">
                   <input type="text" placeholder="Search dramas..." className="bg-gray-900 border border-gray-800 text-white text-sm rounded-lg block w-full p-3 pl-10" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                   <Search className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
