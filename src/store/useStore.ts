@@ -21,6 +21,7 @@ export interface ContinueWatchingEntry {
   dramaTitle: string;
   dramaPoster: string;
   episodeId: string;
+  episodeNo?: number;
   progress: number;
   timestamp: number;
 }
@@ -36,7 +37,7 @@ interface StoreState {
   clearAllMyList: () => void;
 
   continueWatching: Record<string, Record<string, ContinueWatchingEntry>>;
-  updateProgress: (drama: Drama, episodeId: string, progress: number, platform?: Platform) => void;
+  updateProgress: (drama: Drama, episodeId: string, progress: number, platform?: Platform, episodeNo?: number) => void;
   getContinueWatchingForCurrentUser: () => ContinueWatchingEntry[];
   clearContinueWatchingForCurrentUser: () => void;
   setContinueWatchingForCurrentUser: (entries: ContinueWatchingEntry[]) => void;
@@ -110,7 +111,7 @@ export const useStore = create<StoreState>()(
       clearAllMyList: () => set({ myList: [] }),
 
       continueWatching: {},
-      updateProgress: (drama, episodeId, progress, platform) => {
+      updateProgress: (drama, episodeId, progress, platform, episodeNo) => {
         if (!drama) return;
         if (progress < CONTINUE_PROGRESS_MIN_SECONDS) return;
 
@@ -143,6 +144,10 @@ export const useStore = create<StoreState>()(
             dramaTitle: resolvedTitle,
             dramaPoster: selectedPoster,
             episodeId: String(episodeId),
+            episodeNo:
+              typeof episodeNo === 'number' && Number.isFinite(episodeNo) && episodeNo > 0
+                ? Math.floor(episodeNo)
+                : existing?.episodeNo,
             progress: Number(progress),
             timestamp: Date.now(),
           };
@@ -220,6 +225,10 @@ export const useStore = create<StoreState>()(
             dramaTitle: !isInvalidDramaTitle(entry.dramaTitle, dramaId) ? entry.dramaTitle : 'Tanpa Judul',
             dramaPoster: isUsablePoster(entry.dramaPoster) ? entry.dramaPoster : PLACEHOLDER_POSTER,
             episodeId: String(entry.episodeId || '1'),
+            episodeNo:
+              typeof entry.episodeNo === 'number' && Number.isFinite(entry.episodeNo) && entry.episodeNo > 0
+                ? Math.floor(entry.episodeNo)
+                : undefined,
             progress: Number(entry.progress || 0),
             timestamp: Number(entry.timestamp || Date.now()),
           };
@@ -260,6 +269,10 @@ export const useStore = create<StoreState>()(
               dramaTitle: value?.dramaTitle || 'Unknown Title',
               dramaPoster: value?.dramaPoster || '/images/placeholder-poster.svg',
               episodeId: value?.episodeId || '1',
+              episodeNo:
+                typeof value?.episodeNo === 'number' && Number.isFinite(value.episodeNo) && value.episodeNo > 0
+                  ? Math.floor(value.episodeNo)
+                  : undefined,
               progress: Number(value?.progress || 0),
               timestamp: Number(value?.timestamp || Date.now()),
             };
