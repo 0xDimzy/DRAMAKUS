@@ -11,6 +11,7 @@ import {
   signInWithFirebaseGoogle,
   signOutFirebase,
 } from '../lib/firebaseClient';
+import { updateLogs } from '../data/updateLogs';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -128,12 +129,6 @@ export default function Navbar() {
     { name: 'Dub Indo', path: '/dubindo' },
     { name: 'My List', path: '/mylist' },
   ];
-  const updateLogs = [
-    { date: '2026-02-28', text: 'Perbaikan tampilan detail episode lintas platform.' },
-    { date: '2026-02-28', text: 'Normalisasi judul episode Reelife agar konsisten.' },
-    { date: '2026-02-28', text: 'Penyempurnaan sinkronisasi continue watching.' },
-  ];
-
   return (
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-500 ${
