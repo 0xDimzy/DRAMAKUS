@@ -135,6 +135,8 @@ const normalizeDuration = (duration: any) => {
   return '';
 };
 
+const hasChineseCharacters = (value: any) => /[\u3400-\u9FFF]/.test(String(value || ''));
+
 const extractPlayableUrl = (data: any) => {
   if (typeof data === 'string') return normalizePlaybackUrl(data);
   return normalizePlaybackUrl(
@@ -243,6 +245,7 @@ export const reelifeProvider = {
     const mapped = episodes.map((ep: any, index: number) => {
       const episodeNo = Number(ep?.episode || ep?.chapter || ep?.sort || ep?.id || index + 1);
       const normalizedEpisode = Number.isFinite(episodeNo) && episodeNo > 0 ? episodeNo : index + 1;
+      const episodeLabel = `Episode ${normalizedEpisode}`;
       const rawEpisodeId =
         ep?.id ||
         ep?.episodeId ||
@@ -252,10 +255,14 @@ export const reelifeProvider = {
         ep?.vid ||
         ep?.videoId;
       const resolvedEpisodeId = String(rawEpisodeId || normalizedEpisode);
+      const apiTitle = String(
+        ep?.title || ep?.name || ep?.episodeName || ep?.chapterName || ep?.shortPlayName || ''
+      ).trim();
+      const normalizedTitle = apiTitle && !hasChineseCharacters(apiTitle) ? apiTitle : episodeLabel;
       return {
         ...ep,
         id: resolvedEpisodeId,
-        title: ep?.title || ep?.name || ep?.episodeName || ep?.chapterName || ep?.shortPlayName || `Episode ${normalizedEpisode}`,
+        title: normalizedTitle,
         duration: normalizeDuration(
           ep?.duration ||
           ep?.time ||
