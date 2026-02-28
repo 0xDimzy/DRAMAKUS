@@ -45,28 +45,8 @@ export default function MovieCard({ drama, showMeta = true }: MovieCardProps) {
     rawDrama.shortPlayEpisodeCount ||
     rawDrama.videoCount ||
     '';
-  const resolvedDuration =
-    rawDrama.totalDuration ||
-    rawDrama.total_duration ||
-    rawDrama.totalTime ||
-    rawDrama.total_time ||
-    rawDrama.totalPlayTime ||
-    rawDrama.total_play_time ||
-    rawDrama.fullDuration ||
-    rawDrama.full_duration ||
-    rawDrama.videoDuration ||
-    rawDrama.video_duration ||
-    rawDrama.timeLength ||
-    rawDrama.playTime ||
-    rawDrama.play_time ||
-    rawDrama.durationText ||
-    drama.duration ||
-    '';
-
   const episodeLabel =
     String(resolvedEpisode).trim() && String(resolvedEpisode) !== '0' ? `${resolvedEpisode} Eps` : 'Belum tersedia';
-  const durationLabel =
-    String(resolvedDuration).trim() && String(resolvedDuration) !== '0' ? String(resolvedDuration) : 'Belum tersedia';
 
   const handleListToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -138,7 +118,6 @@ export default function MovieCard({ drama, showMeta = true }: MovieCardProps) {
         {showMeta && (
           <>
             <p className="text-gray-400 text-xs mt-1">Total Episode: {episodeLabel}</p>
-            <p className="text-gray-400 text-xs mt-1">Total Durasi: {durationLabel}</p>
           </>
         )}
       </div>
