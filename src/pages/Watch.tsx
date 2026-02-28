@@ -33,8 +33,10 @@ export default function Watch() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [videoLoading, setVideoLoading] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showMobileEpisodeNav, setShowMobileEpisodeNav] = useState(true);
   const [dramaInfo, setDramaInfo] = useState<Drama | null>(null);
   const lastSavedSecondRef = useRef(0);
+  const mobileNavHideTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const loadEpisodes = async () => {
@@ -91,6 +93,30 @@ export default function Watch() {
   useEffect(() => {
     lastSavedSecondRef.current = 0;
   }, [currentEpisode?.id]);
+
+  useEffect(() => {
+    return () => {
+      if (mobileNavHideTimeoutRef.current) {
+        window.clearTimeout(mobileNavHideTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.innerWidth >= 640) return;
+    revealMobileEpisodeNav();
+  }, [currentEpisode?.id]);
+
+  const revealMobileEpisodeNav = () => {
+    setShowMobileEpisodeNav(true);
+    if (mobileNavHideTimeoutRef.current) {
+      window.clearTimeout(mobileNavHideTimeoutRef.current);
+    }
+    mobileNavHideTimeoutRef.current = window.setTimeout(() => {
+      setShowMobileEpisodeNav(false);
+    }, 2500);
+  };
 
   const handleNextEpisode = () => {
     if (!currentEpisode || !episodes.length || !decodedId) return;
@@ -190,9 +216,16 @@ export default function Watch() {
   if (loading) return <div className="bg-black h-screen flex items-center justify-center text-white">Loading...</div>;
   if (loadError) return <div className="bg-black h-screen flex items-center justify-center text-white px-4 text-center">{loadError}</div>;
   if (!currentEpisode) return <div className="bg-black h-screen flex items-center justify-center text-white">Episode not found</div>;
+  const currentEpisodeIndex = episodes.findIndex((e) => e.id === currentEpisode.id);
+  const hasPrevious = currentEpisodeIndex > 0;
+  const hasNext = currentEpisodeIndex < episodes.length - 1;
 
   return (
-    <div className="relative h-screen w-full bg-black overflow-hidden group">
+    <div
+      className="relative h-screen w-full bg-black overflow-hidden group"
+      onTouchStart={revealMobileEpisodeNav}
+      onClick={revealMobileEpisodeNav}
+    >
       <button
         onClick={() => navigate(`/detail/${encodeURIComponent(decodedId)}`, { state: { drama: getBackDramaState() } })}
         className="absolute top-4 left-4 z-50 flex items-center gap-2 px-4 py-2 bg-black/60 rounded-full text-white hover:bg-white/20 transition"
@@ -233,7 +266,10 @@ export default function Watch() {
       </div>
 
       <button
-        onClick={() => setShowSidebar(!showSidebar)}
+        onClick={() => {
+          setShowSidebar(!showSidebar);
+          revealMobileEpisodeNav();
+        }}
         className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"
       >
         <List className="w-6 h-6" />
@@ -269,20 +305,51 @@ export default function Watch() {
         </div>
       </div>
 
-      {episodes.findIndex((e) => e.id === currentEpisode.id) > 0 && (
+      <div
+        className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-50 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 sm:hidden transition-all duration-300 ${
+          showMobileEpisodeNav && !showSidebar ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              handlePreviousEpisode();
+              revealMobileEpisodeNav();
+            }}
+            disabled={!hasPrevious}
+            className="w-full rounded-md border border-red-500/40 bg-red-600/85 px-3 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Prev
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              handleNextEpisode();
+              revealMobileEpisodeNav();
+            }}
+            disabled={!hasNext}
+            className="w-full rounded-md border border-red-500/40 bg-red-600/85 px-3 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
+      {hasPrevious && (
         <button
           onClick={handlePreviousEpisode}
-          className="absolute bottom-20 left-8 z-50 px-6 py-3 bg-white text-black font-bold rounded flex items-center space-x-2 hover:bg-gray-200 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"
+          className="absolute bottom-20 left-8 z-50 hidden px-6 py-3 bg-white text-black font-bold rounded sm:flex items-center space-x-2 hover:bg-gray-200 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"
         >
           <SkipBack className="w-5 h-5" />
           <span>Previous Episode</span>
         </button>
       )}
 
-      {episodes.findIndex((e) => e.id === currentEpisode.id) < episodes.length - 1 && (
+      {hasNext && (
         <button
           onClick={handleNextEpisode}
-          className="absolute bottom-20 right-8 z-50 px-6 py-3 bg-white text-black font-bold rounded flex items-center space-x-2 hover:bg-gray-200 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"
+          className="absolute bottom-20 right-8 z-50 hidden px-6 py-3 bg-white text-black font-bold rounded sm:flex items-center space-x-2 hover:bg-gray-200 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"
         >
           <span>Next Episode</span>
           <SkipForward className="w-5 h-5" />
