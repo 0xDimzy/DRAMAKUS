@@ -228,7 +228,6 @@ export default function Watch() {
 
       <div className="absolute top-16 left-4 z-40 rounded-md bg-black/60 px-3 py-2 text-xs text-white">
         <p className="font-semibold">Episode: {currentEpisode.title}</p>
-        <p className="text-gray-300">Durasi: {currentEpisode.duration || 'Belum tersedia'}</p>
       </div>
 
       <button
@@ -260,7 +259,6 @@ export default function Watch() {
                 <span className="text-lg font-bold w-6">{index + 1}</span>
                 <div className="flex-1">
                   <h4 className="text-sm font-medium line-clamp-1">{ep.title}</h4>
-                  <span className="text-xs opacity-70">Durasi: {ep.duration || 'Belum tersedia'}</span>
                 </div>
                 {currentEpisode.id === ep.id && <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
               </button>
