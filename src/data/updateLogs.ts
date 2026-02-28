@@ -5,7 +5,7 @@ export interface UpdateLogItem {
 
 // Tambahkan item baru di paling atas agar muncul paling pertama di notifikasi.
 export const updateLogs: UpdateLogItem[] = [
-  { date: '2026-02-28', text: 'Update VideoPlayer' },
+  { date: '2026-02-29', text: 'Update VideoPlayer' },
   { date: '2026-02-28', text: 'Update Navbar' },
   { date: '2026-02-28', text: 'Penambahan Menu Report untuk memudahkan pengguna melaporkan masalah atau memberikan feedback.' },
   { date: '2026-02-28', text: 'Peningkatan performa saat menonton drama.' },
