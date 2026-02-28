@@ -183,6 +183,10 @@ export const loadContinueWatchingFromCloud = async (uid: string): Promise<Contin
       dramaTitle: String(item.dramaTitle || 'Tanpa Judul'),
       dramaPoster: String(item.dramaPoster || '/images/placeholder-poster.svg'),
       episodeId: String(item.episodeId || '1'),
+      episodeNo:
+        typeof item.episodeNo === 'number' && Number.isFinite(item.episodeNo) && item.episodeNo > 0
+          ? Math.floor(item.episodeNo)
+          : undefined,
       progress: Number(item.progress || 0),
       timestamp: Number(item.timestamp || Date.now()),
     }))
