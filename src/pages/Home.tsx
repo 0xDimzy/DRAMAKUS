@@ -65,6 +65,18 @@ export default function Home() {
   }, [catalogMovies, sortBy]);
 
   const continueWatchingItems = getContinueWatchingForCurrentUser();
+  const getEpisodeNumberLabel = (item: any) => {
+    if (typeof item?.episodeNo === 'number' && Number.isFinite(item.episodeNo) && item.episodeNo > 0) {
+      return String(Math.floor(item.episodeNo));
+    }
+
+    const rawEpisodeId = String(item?.episodeId || '').trim();
+    if (/^\d{1,4}$/.test(rawEpisodeId)) {
+      return rawEpisodeId;
+    }
+
+    return '?';
+  };
   const isUsablePoster = (poster: string | undefined | null) => {
     const normalized = String(poster || '').trim();
     if (!normalized) return false;
@@ -155,7 +167,7 @@ export default function Home() {
                     </div>
                     <p className="text-sm text-white line-clamp-1">{item.dramaTitle}</p>
                     <p className="text-xs text-gray-300">
-                      Episode {item.episodeId} - {Math.floor(item.progress / 60)}m {item.progress % 60}s
+                      Episode {getEpisodeNumberLabel(item)} - {Math.floor(item.progress / 60)}m {item.progress % 60}s
                     </p>
                   </button>
                     );
@@ -190,7 +202,7 @@ export default function Home() {
                     className="aspect-[2/3] rounded-md bg-gray-800/80 animate-pulse border border-gray-700"
                   />
                 ))
-              : sortedCatalogMovies.map((movie) => (
+                : sortedCatalogMovies.map((movie) => (
                   <MovieCard
                     key={movie.id || movie.bookId || `${movie.title}-${movie.poster}`}
                     drama={movie}
