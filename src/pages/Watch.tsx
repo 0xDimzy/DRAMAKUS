@@ -306,11 +306,11 @@ export default function Watch() {
       </div>
 
       <div
-        className={`fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-50 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 sm:hidden transition-all duration-300 ${
+        className={`fixed inset-x-0 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] z-50 px-3 sm:hidden pointer-events-none transition-all duration-300 ${
           showMobileEpisodeNav && !showSidebar ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 pointer-events-none'
         }`}
       >
-        <div className="grid grid-cols-2 gap-2">
+        <div className="mx-auto grid w-full max-w-md grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => {
@@ -318,7 +318,7 @@ export default function Watch() {
               revealMobileEpisodeNav();
             }}
             disabled={!hasPrevious}
-            className="w-full rounded-md border border-red-500/40 bg-red-600/85 px-3 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+            className="pointer-events-auto w-full rounded-md border border-red-500/40 bg-red-600/90 px-3 py-2 text-sm font-bold text-white shadow-lg transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Prev
           </button>
@@ -329,7 +329,7 @@ export default function Watch() {
               revealMobileEpisodeNav();
             }}
             disabled={!hasNext}
-            className="w-full rounded-md border border-red-500/40 bg-red-600/85 px-3 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+            className="pointer-events-auto w-full rounded-md border border-red-500/40 bg-red-600/90 px-3 py-2 text-sm font-bold text-white shadow-lg transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Next
           </button>
