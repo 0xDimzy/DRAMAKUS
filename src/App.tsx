@@ -14,6 +14,7 @@ import VIP from './pages/VIP';
 import DubIndo from './pages/DubIndo';
 import UserPage from './pages/User';
 import SettingsPage from './pages/Settings';
+import ReportIssuePage from './pages/ReportIssue';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/vip" element={<VIP />} />
         <Route path="/dubindo" element={<DubIndo />} />
         <Route path="/mylist" element={<MyList />} />
+        <Route path="/report" element={<ReportIssuePage />} />
         <Route path="/user" element={<UserPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
