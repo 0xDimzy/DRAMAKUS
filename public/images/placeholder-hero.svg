@@ -1,0 +1,23 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heroBg" x1="120" y1="80" x2="1820" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#030712"/>
+      <stop offset="0.42" stop-color="#111827"/>
+      <stop offset="1" stop-color="#7F1D1D"/>
+    </linearGradient>
+    <radialGradient id="heroGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1260 360) rotate(136) scale(520 380)">
+      <stop stop-color="#F87171" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#F87171" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#heroBg)"/>
+  <ellipse cx="1260" cy="360" rx="560" ry="400" fill="url(#heroGlow)"/>
+  <rect x="180" y="190" width="360" height="360" rx="34" fill="#050505" stroke="#9CA3AF" stroke-opacity="0.35"/>
+  <path d="M326 280L446 370L326 460V280Z" fill="#F9FAFB"/>
+  <rect x="610" y="330" width="760" height="24" rx="12" fill="#F3F4F6" fill-opacity="0.95"/>
+  <rect x="610" y="382" width="560" height="20" rx="10" fill="#D1D5DB" fill-opacity="0.7"/>
+  <rect x="610" y="456" width="220" height="62" rx="14" fill="#DC2626"/>
+  <text x="720" y="495" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" fill="#FFFFFF" font-weight="700">DRAMAKUS</text>
+  <text x="610" y="620" font-family="Arial, sans-serif" font-size="54" fill="#FFFFFF" font-weight="700">Gambar Belum Tersedia</text>
+  <text x="610" y="674" font-family="Arial, sans-serif" font-size="30" fill="#D1D5DB">Konten tetap bisa diputar tanpa poster.</text>
+</svg>

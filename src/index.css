@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[#141414] text-white font-sans antialiased;
+  }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-[#141414];
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+}
+
+@layer components {
+  .movie-row-swiper .swiper-button-prev,
+  .movie-row-swiper .swiper-button-next {
+    width: 52px;
+    height: 52px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+    transition: background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
+    touch-action: manipulation;
+    user-select: none;
+  }
+
+  .movie-row-swiper .swiper-button-prev {
+    left: 0;
+  }
+
+  .movie-row-swiper .swiper-button-next {
+    right: 0;
+  }
+
+  .movie-row-swiper .swiper-button-prev:after,
+  .movie-row-swiper .swiper-button-next:after {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .movie-row-swiper .swiper-button-disabled {
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  .movie-row-swiper .swiper-button-prev:hover,
+  .movie-row-swiper .swiper-button-next:hover {
+    background: rgba(229, 9, 20, 0.85);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  @media (max-width: 768px) {
+    .movie-row-swiper .swiper-button-prev,
+    .movie-row-swiper .swiper-button-next {
+      width: 58px;
+      height: 58px;
+      top: 46%;
+      background: rgba(0, 0, 0, 0.9);
+    }
+    .movie-row-swiper .swiper-button-prev:after,
+    .movie-row-swiper .swiper-button-next:after {
+      font-size: 18px;
+    }
+  }
+}

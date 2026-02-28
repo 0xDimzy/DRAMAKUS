@@ -1,0 +1,22 @@
+<svg width="400" height="600" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="20" x2="370" y2="580" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="0.45" stop-color="#1F2937"/>
+      <stop offset="1" stop-color="#7F1D1D"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="80" y1="110" x2="320" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EF4444" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#DC2626" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" rx="24" fill="url(#bg)"/>
+  <circle cx="205" cy="210" r="130" fill="url(#glow)"/>
+  <rect x="124" y="146" width="152" height="152" rx="18" fill="#0B0B0B" stroke="#9CA3AF" stroke-opacity="0.35"/>
+  <path d="M187 188L238 222L187 256V188Z" fill="#F9FAFB"/>
+  <rect x="60" y="360" width="280" height="10" rx="5" fill="#E5E7EB" fill-opacity="0.85"/>
+  <rect x="60" y="384" width="220" height="10" rx="5" fill="#9CA3AF" fill-opacity="0.6"/>
+  <rect x="60" y="422" width="118" height="34" rx="10" fill="#DC2626"/>
+  <text x="119" y="444" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#FFFFFF" font-weight="700">DRAMAKUS</text>
+  <text x="200" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#F3F4F6" font-weight="700">Poster Unavailable</text>
+</svg>
