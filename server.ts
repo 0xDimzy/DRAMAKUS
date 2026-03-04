@@ -18,6 +18,56 @@ const API_KEY = process.env.DRAMABOX_API_KEY || 'A179DA133C8F05A184D12D5823D8062
 
 app.use(express.json());
 
+app.get('/api/download', async (req, res) => {
+  try {
+    const rawUrl = String(req.query.url || '').trim();
+    const rawFilename = String(req.query.filename || 'episode.mp4').trim();
+    const filename = (rawFilename || 'episode.mp4')
+      .replace(/[\\/:*?"<>|]+/g, '-')
+      .replace(/\s+/g, ' ');
+
+    if (!rawUrl) {
+      res.status(400).json({ error: 'Missing url' });
+      return;
+    }
+
+    let parsed: URL;
+    try {
+      parsed = new URL(rawUrl);
+    } catch {
+      res.status(400).json({ error: 'Invalid url' });
+      return;
+    }
+
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      res.status(400).json({ error: 'Unsupported protocol' });
+      return;
+    }
+
+    const response = await axios.get(parsed.toString(), {
+      responseType: 'stream',
+      timeout: 120000,
+      headers: {
+        'user-agent': String(req.headers['user-agent'] || 'Mozilla/5.0'),
+        referer: parsed.origin,
+      },
+    });
+
+    const contentType = String(response.headers['content-type'] || 'application/octet-stream');
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename.toLowerCase().endsWith('.mp4') ? filename : `${filename}.mp4`}"`);
+    res.setHeader('Cache-Control', 'no-store');
+    response.data.pipe(res);
+  } catch (error: any) {
+    console.error('[Download Proxy] Error:', error?.message || error);
+    if (error?.response?.status) {
+      res.status(error.response.status).json({ error: 'Failed to fetch source file' });
+      return;
+    }
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // API Proxy Routes for Dramabox
 app.get('/api/proxy/*', async (req, res) => {
   try {
