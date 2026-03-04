@@ -319,9 +319,13 @@ const assertAdmin = async (uid: string) => {
   if (!db) throw new Error('Database not ready');
 
   const currentUserSnap = await db.collection('users').doc(uid).get();
-  const role = normalizeRole(currentUserSnap.data()?.role);
+  if (!currentUserSnap.exists) {
+    throw new Error(`Dokumen users/${uid} tidak ditemukan.`);
+  }
+
+  const role = String(currentUserSnap.data()?.role || '').trim().toLowerCase();
   if (role !== 'admin') {
-    throw new Error('Akses admin diperlukan');
+    throw new Error(`Role pada users/${uid} adalah "${role || 'kosong'}", bukan "admin".`);
   }
 
   return db;
@@ -340,20 +344,28 @@ export const loadUsersForAdmin = async (uid: string): Promise<AdminUserItem[]> =
   if (!uid) return [];
   const db = await assertAdmin(uid);
 
-  const snap = await db.collection('users').get();
-  return snap.docs
-    .map((doc: any) => {
-      const data = doc.data() || {};
-      return {
-        uid: String(doc.id),
-        name: String(data.name || '').trim() || 'Tanpa Nama',
-        email: String(data.email || '').trim().toLowerCase(),
-        picture: data.picture ? String(data.picture).trim() : undefined,
-        role: normalizeRole(data.role),
-        updatedAt: Number(data.updatedAt || 0),
-      } satisfies AdminUserItem;
-    })
-    .sort((a, b) => b.updatedAt - a.updatedAt);
+  try {
+    const snap = await db.collection('users').limit(500).get();
+    return snap.docs
+      .map((doc: any) => {
+        const data = doc.data() || {};
+        return {
+          uid: String(doc.id),
+          name: String(data.name || '').trim() || 'Tanpa Nama',
+          email: String(data.email || '').trim().toLowerCase(),
+          picture: data.picture ? String(data.picture).trim() : undefined,
+          role: normalizeRole(data.role),
+          updatedAt: Number(data.updatedAt || 0),
+        } satisfies AdminUserItem;
+      })
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+  } catch (error: any) {
+    const code = String(error?.code || '').toLowerCase();
+    if (code.includes('permission-denied')) {
+      throw new Error('Permission denied membaca collection users. Deploy ulang firestore.rules terbaru.');
+    }
+    throw new Error(error?.message || 'Gagal mengambil data users.');
+  }
 };
 
 export const updateUserRoleByAdmin = async (adminUid: string, targetUid: string, role: UserRole) => {
