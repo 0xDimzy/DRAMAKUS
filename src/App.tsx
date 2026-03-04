@@ -15,6 +15,7 @@ import DubIndo from './pages/DubIndo';
 import UserPage from './pages/User';
 import SettingsPage from './pages/Settings';
 import ReportIssuePage from './pages/ReportIssue';
+import AdminUsersPage from './pages/AdminUsers';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/report" element={<ReportIssuePage />} />
         <Route path="/user" element={<UserPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
       </Routes>
     </Router>
   );
