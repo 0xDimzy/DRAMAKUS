@@ -14,6 +14,7 @@ export default function Detail() {
   const [drama, setDrama] = useState<Drama | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const { addToList, removeFromList, isInList, continueWatching, myList, platform, user } = useStore();
   const isInvalidDramaTitle = (title: string | undefined | null) => {
     const normalized = String(title || '').trim();
@@ -44,6 +45,7 @@ export default function Detail() {
       : episodes.length > 0
         ? `${episodes.length} Eps`
         : 'Belum tersedia';
+  const hasLongDescription = String(drama?.description || '').trim().length > 240;
 
   useEffect(() => {
     const loadData = async () => {
@@ -104,6 +106,10 @@ export default function Detail() {
     loadData();
     window.scrollTo(0, 0);
   }, [decodedId, continueEntry?.dramaPoster, continueEntry?.dramaTitle, myListEntry?.poster, myListEntry?.title, stateDrama?.poster, stateDrama?.title]);
+
+  useEffect(() => {
+    setIsDescriptionExpanded(false);
+  }, [decodedId]);
 
   if (loading) {
     return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
@@ -179,7 +185,24 @@ export default function Detail() {
               </button>
             </div>
 
-            <p className="text-gray-300 text-sm sm:text-lg line-clamp-3 max-w-2xl">{drama.description}</p>
+            <div className="max-w-2xl">
+              <p
+                className={`text-gray-300 text-sm sm:text-lg whitespace-pre-line break-words ${
+                  hasLongDescription && !isDescriptionExpanded ? 'line-clamp-3' : ''
+                }`}
+              >
+                {drama.description || 'Deskripsi belum tersedia.'}
+              </p>
+              {hasLongDescription && (
+                <button
+                  type="button"
+                  onClick={() => setIsDescriptionExpanded((prev) => !prev)}
+                  className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white transition"
+                >
+                  {isDescriptionExpanded ? 'Sembunyikan' : 'Lihat selengkapnya'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
