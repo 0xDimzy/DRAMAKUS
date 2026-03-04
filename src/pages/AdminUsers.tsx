@@ -5,6 +5,14 @@ import { useStore, type UserRole } from '../store/useStore';
 import { loadUsersForAdmin, updateUserRoleByAdmin, type AdminUserItem } from '../lib/firebaseClient';
 
 const ROLE_OPTIONS: UserRole[] = ['member', 'vip', 'admin'];
+const formatWIB = (timestamp: number) => {
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return '-';
+  return new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(timestamp));
+};
 
 export default function AdminUsersPage() {
   const { user } = useStore();
@@ -128,6 +136,7 @@ export default function AdminUsersPage() {
                   <th className="px-4 py-3 text-left">Nama</th>
                   <th className="px-4 py-3 text-left">Email</th>
                   <th className="px-4 py-3 text-left">Role</th>
+                  <th className="px-4 py-3 text-left">Updated (WIB)</th>
                   <th className="px-4 py-3 text-left">Aksi</th>
                 </tr>
               </thead>
@@ -141,6 +150,7 @@ export default function AdminUsersPage() {
                         {item.role}
                       </span>
                     </td>
+                    <td className="px-4 py-3 text-gray-300">{formatWIB(item.updatedAt)}</td>
                     <td className="px-4 py-3">
                       <select
                         value={item.role}
@@ -159,7 +169,7 @@ export default function AdminUsersPage() {
                 ))}
                 {users.length === 0 && (
                   <tr>
-                    <td className="px-4 py-6 text-center text-gray-400" colSpan={4}>
+                    <td className="px-4 py-6 text-center text-gray-400" colSpan={5}>
                       Belum ada data user.
                     </td>
                   </tr>
