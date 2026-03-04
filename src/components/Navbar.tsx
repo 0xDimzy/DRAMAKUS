@@ -12,6 +12,7 @@ import {
   signInWithFirebaseGoogle,
   signOutFirebase,
 } from '../lib/firebaseClient';
+import { executeRecaptcha, isRecaptchaConfigured, verifyRecaptchaToken } from '../lib/recaptcha';
 import { updateLogs } from '../data/updateLogs';
 
 type ToastState = {
@@ -131,6 +132,20 @@ export default function Navbar() {
   const handleLogin = async () => {
     setAuthBusy(true);
     try {
+      if (isRecaptchaConfigured()) {
+        const token = await executeRecaptcha('login');
+        if (!token) {
+          setToast({ type: 'error', message: 'Captcha gagal dijalankan. Coba lagi.' });
+          return;
+        }
+
+        const captchaResult = await verifyRecaptchaToken(token, 'login');
+        if (!captchaResult.ok) {
+          setToast({ type: 'error', message: captchaResult.message || 'Verifikasi captcha gagal.' });
+          return;
+        }
+      }
+
       const result = await signInWithFirebaseGoogle();
       if (result?.uid) {
         setToast({ type: 'success', message: 'Login berhasil.' });
