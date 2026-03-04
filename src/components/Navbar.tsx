@@ -70,12 +70,15 @@ export default function Navbar() {
           console.error('Failed to load user profile from cloud', error);
         }
 
+        const currentRole = useStore.getState().user?.role;
+        const resolvedRole = cloudProfile?.role || currentRole || 'member';
+
         login({
           uid: firebaseUser.uid,
           email: cloudProfile?.email || firebaseUser.email,
           name: cloudProfile?.name || firebaseUser.displayName || firebaseUser.email,
           picture: cloudProfile?.picture || firebaseUser.photoURL || undefined,
-          role: cloudProfile?.role || 'member',
+          role: resolvedRole,
         });
 
         try {
