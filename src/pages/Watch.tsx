@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, SkipBack, SkipForward, List } from 'lucide-react';
+import { ArrowLeft, SkipBack, SkipForward, List, Download } from 'lucide-react';
 import VideoPlayer from '../components/VideoPlayer';
 import { fetchEpisodes, fetchVideoUrl, fetchDetail, Episode, Drama } from '../lib/api';
 import { normalizePlaybackUrl } from '../lib/api/url';
@@ -238,6 +238,22 @@ export default function Watch() {
   const currentEpisodeIndex = episodes.findIndex((e) => e.id === currentEpisode.id);
   const hasPrevious = currentEpisodeIndex > 0;
   const hasNext = currentEpisodeIndex < episodes.length - 1;
+  const canDownload = user?.role === 'vip' || user?.role === 'admin';
+
+  const handleDownloadVideo = () => {
+    if (!videoUrl || !canDownload) return;
+    const episodeNumber = currentEpisodeIndex >= 0 ? currentEpisodeIndex + 1 : 1;
+    const safeTitle = String(dramaInfo?.title || decodedId || 'drama').replace(/[\\/:*?"<>|]+/g, '-');
+    const filename = `${safeTitle}-ep-${episodeNumber}.mp4`;
+    const link = document.createElement('a');
+    link.href = videoUrl;
+    link.download = filename;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
 
   return (
     <div
@@ -273,6 +289,7 @@ export default function Watch() {
           startSeconds={resumeSeconds}
           onEnded={handleNextEpisode}
           onProgress={handleProgress}
+          allowDownload={canDownload}
         />
       ) : (
         <div className="flex flex-col items-center justify-center h-full text-white space-y-4">
@@ -292,6 +309,20 @@ export default function Watch() {
       <div className="absolute left-4 top-[calc(env(safe-area-inset-top)+4.25rem)] z-40 rounded-md bg-black/60 px-3 py-2 text-xs text-white">
         <p className="font-semibold">Episode: {currentEpisode.title}</p>
       </div>
+
+      <button
+        type="button"
+        onClick={handleDownloadVideo}
+        disabled={!canDownload || !videoUrl}
+        className={`absolute left-4 top-[calc(env(safe-area-inset-top)+7.5rem)] z-40 inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition ${
+          canDownload && videoUrl
+            ? 'bg-red-600/90 text-white hover:bg-red-600'
+            : 'cursor-not-allowed bg-gray-700/70 text-gray-300'
+        }`}
+      >
+        <Download className="h-4 w-4" />
+        {canDownload ? 'Download Episode' : 'Download VIP/Admin'}
+      </button>
 
       <button
         onClick={() => {
