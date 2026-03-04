@@ -14,6 +14,7 @@ import {
 import { updateLogs } from '../data/updateLogs';
 
 export default function Navbar() {
+  const supportUrl = 'https://tiptap.gg/kusuma/tip';
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -161,6 +162,14 @@ export default function Navbar() {
                     {link.name}
                   </Link>
                 ))}
+                <a
+                  href={supportUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-amber-300 hover:text-amber-200 transition-colors"
+                >
+                  Support
+                </a>
               </div>
             </div>
           </div>
@@ -258,6 +267,15 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+              <a
+                href={supportUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-4 py-3 rounded-lg text-base font-medium text-amber-300 hover:bg-gray-800 transition-all"
+              >
+                Support
+              </a>
 
               <div className="pt-4 border-t border-gray-800 mt-4 space-y-3">
                 <div className="rounded-lg border border-gray-800 bg-black/30 p-3">
