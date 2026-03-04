@@ -228,7 +228,7 @@ export default function Watch() {
     >
       <button
         onClick={() => navigate(`/detail/${encodeURIComponent(decodedId)}`, { state: { drama: getBackDramaState() } })}
-        className="absolute top-4 left-4 z-50 flex items-center gap-2 px-4 py-2 bg-black/60 rounded-full text-white hover:bg-white/20 transition"
+        className="absolute left-4 top-[calc(env(safe-area-inset-top)+1rem)] z-50 flex items-center gap-2 px-4 py-2 bg-black/60 rounded-full text-white hover:bg-white/20 transition"
       >
         <ArrowLeft className="w-6 h-6" />
         <span className="text-sm font-semibold">Kembali</span>
@@ -261,7 +261,7 @@ export default function Watch() {
         </div>
       )}
 
-      <div className="absolute top-16 left-4 z-40 rounded-md bg-black/60 px-3 py-2 text-xs text-white">
+      <div className="absolute left-4 top-[calc(env(safe-area-inset-top)+4.25rem)] z-40 rounded-md bg-black/60 px-3 py-2 text-xs text-white">
         <p className="font-semibold">Episode: {currentEpisode.title}</p>
       </div>
 
@@ -270,7 +270,7 @@ export default function Watch() {
           setShowSidebar(!showSidebar);
           revealMobileEpisodeNav();
         }}
-        className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"
+        className="absolute right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-50 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"
       >
         <List className="w-6 h-6" />
       </button>
