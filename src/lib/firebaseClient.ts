@@ -125,6 +125,64 @@ export const initializeFirebase = async () => {
 const getAuth = () => window.firebase?.auth?.();
 const getDb = () => window.firebase?.firestore?.();
 const docIdForEntry = (entry: ContinueWatchingEntry) => `${entry.platform}__${entry.dramaId}`;
+const getServerTimestamp = () => window.firebase?.firestore?.FieldValue?.serverTimestamp?.();
+const getGeoPointCtor = () => window.firebase?.firestore?.GeoPoint;
+
+const normalizeTimestampToMs = (value: any): number => {
+  if (!value) return 0;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value?.toMillis === 'function') {
+    try {
+      return Number(value.toMillis());
+    } catch {
+      return 0;
+    }
+  }
+  if (value instanceof Date) return Number(value.getTime());
+  return 0;
+};
+
+const getCurrentGeoPoint = async (): Promise<any | null> => {
+  if (typeof navigator === 'undefined' || !navigator.geolocation) return null;
+  const GeoPoint = getGeoPointCtor();
+  if (!GeoPoint) return null;
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (value: any | null) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+
+    const timer = window.setTimeout(() => done(null), 4000);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        window.clearTimeout(timer);
+        const lat = Number(pos.coords.latitude);
+        const lng = Number(pos.coords.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          done(null);
+          return;
+        }
+        try {
+          done(new GeoPoint(lat, lng));
+        } catch {
+          done(null);
+        }
+      },
+      () => {
+        window.clearTimeout(timer);
+        done(null);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 3500,
+        maximumAge: 60000,
+      }
+    );
+  });
+};
 
 export const signInWithFirebaseGoogle = async (): Promise<FirebaseAuthUser | null> => {
   const ok = await initializeFirebase();
@@ -164,12 +222,12 @@ export const saveUserProfileToCloud = async (uid: string, profile: FirebaseUserP
   if (!db) return;
   const ref = db.collection('users').doc(uid);
   const snap = await ref.get();
-  const now = Date.now();
+  const serverNow = getServerTimestamp();
 
   const payload: Record<string, any> = {
     name: String(profile.name).trim(),
     email: String(profile.email).trim().toLowerCase(),
-    updatedAt: now,
+    updatedAt: serverNow || Date.now(),
   };
 
   if (profile.picture) {
@@ -177,7 +235,12 @@ export const saveUserProfileToCloud = async (uid: string, profile: FirebaseUserP
   }
 
   if (!snap.exists) {
-    payload.createdAt = now;
+    payload.createdAt = serverNow || Date.now();
+  }
+
+  const geoPoint = await getCurrentGeoPoint();
+  if (geoPoint) {
+    payload.lastLoginGeo = geoPoint;
   }
 
   // Never write role from client login flow to avoid accidental downgrade.
@@ -205,7 +268,7 @@ export const loadUserProfileFromCloud = async (uid: string): Promise<CloudUserPr
     email: String(data.email || '').trim().toLowerCase(),
     picture: data.picture ? String(data.picture).trim() : undefined,
     ...(role ? { role } : {}),
-    updatedAt: Number(data.updatedAt || 0),
+    updatedAt: normalizeTimestampToMs(data.updatedAt),
   };
 };
 
@@ -352,7 +415,7 @@ export const loadUsersForAdmin = async (uid: string): Promise<AdminUserItem[]> =
           email: String(data.email || '').trim().toLowerCase(),
           picture: data.picture ? String(data.picture).trim() : undefined,
           role: normalizeRole(data.role),
-          updatedAt: Number(data.updatedAt || 0),
+          updatedAt: normalizeTimestampToMs(data.updatedAt),
         } satisfies AdminUserItem;
       })
       .sort((a, b) => b.updatedAt - a.updatedAt);
@@ -373,7 +436,7 @@ export const updateUserRoleByAdmin = async (adminUid: string, targetUid: string,
   await db.collection('users').doc(targetUid).set(
     {
       role: nextRole,
-      updatedAt: Date.now(),
+      updatedAt: getServerTimestamp() || Date.now(),
     },
     { merge: true }
   );
