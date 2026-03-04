@@ -239,17 +239,18 @@ export default function Watch() {
   const hasPrevious = currentEpisodeIndex > 0;
   const hasNext = currentEpisodeIndex < episodes.length - 1;
   const canDownload = user?.role === 'vip' || user?.role === 'admin';
+  const isHlsUrl = /\.m3u8(\?|$)/i.test(String(videoUrl || ''));
+  const canDownloadMp4 = canDownload && Boolean(videoUrl) && !isHlsUrl;
 
   const handleDownloadVideo = () => {
-    if (!videoUrl || !canDownload) return;
+    if (!videoUrl || !canDownloadMp4) return;
     const episodeNumber = currentEpisodeIndex >= 0 ? currentEpisodeIndex + 1 : 1;
     const safeTitle = String(dramaInfo?.title || decodedId || 'drama').replace(/[\\/:*?"<>|]+/g, '-');
     const filename = `${safeTitle}-ep-${episodeNumber}.mp4`;
+    const proxiedUrl = `/api/download?url=${encodeURIComponent(videoUrl)}&filename=${encodeURIComponent(filename)}`;
     const link = document.createElement('a');
-    link.href = videoUrl;
+    link.href = proxiedUrl;
     link.download = filename;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -313,15 +314,15 @@ export default function Watch() {
       <button
         type="button"
         onClick={handleDownloadVideo}
-        disabled={!canDownload || !videoUrl}
+        disabled={!canDownloadMp4}
         className={`absolute left-4 top-[calc(env(safe-area-inset-top)+7.5rem)] z-40 inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition ${
-          canDownload && videoUrl
+          canDownloadMp4
             ? 'bg-red-600/90 text-white hover:bg-red-600'
             : 'cursor-not-allowed bg-gray-700/70 text-gray-300'
         }`}
       >
         <Download className="h-4 w-4" />
-        {canDownload ? 'Download Episode' : 'Download VIP/Admin'}
+        {!canDownload ? 'Download VIP/Admin' : isHlsUrl ? 'Download hanya MP4' : 'Download Episode'}
       </button>
 
       <button
