@@ -6,9 +6,10 @@ interface VideoPlayerProps {
   startSeconds?: number;
   onEnded?: () => void;
   onProgress?: (state: { playedSeconds: number; played: number }) => void;
+  allowDownload?: boolean;
 }
 
-export default function VideoPlayer({ url, startSeconds = 0, onEnded, onProgress }: VideoPlayerProps) {
+export default function VideoPlayer({ url, startSeconds = 0, onEnded, onProgress, allowDownload = false }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -200,6 +201,7 @@ export default function VideoPlayer({ url, startSeconds = 0, onEnded, onProgress
         ref={videoRef}
         className="w-full h-full"
         controls
+        controlsList={allowDownload ? undefined : 'nodownload'}
         playsInline
         autoPlay
       />
