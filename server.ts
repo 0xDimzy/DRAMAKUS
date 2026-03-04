@@ -18,6 +18,56 @@ const API_KEY = process.env.DRAMABOX_API_KEY || 'A179DA133C8F05A184D12D5823D8062
 
 app.use(express.json());
 
+app.post('/api/recaptcha-verify', async (req, res) => {
+  const secret = String(process.env.RECAPTCHA_SECRET_KEY || '').trim();
+  const minScore = Number(process.env.RECAPTCHA_MIN_SCORE || 0.5);
+  if (!secret) {
+    res.status(500).json({ ok: false, message: 'reCAPTCHA secret belum diset di server' });
+    return;
+  }
+
+  const token = String(req.body?.token || '').trim();
+  const expectedAction = String(req.body?.action || 'login').trim();
+  if (!token) {
+    res.status(400).json({ ok: false, message: 'Token captcha tidak ada' });
+    return;
+  }
+
+  try {
+    const params = new URLSearchParams();
+    params.append('secret', secret);
+    params.append('response', token);
+
+    const response = await axios.post('https://www.google.com/recaptcha/api/siteverify', params.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      timeout: 15000,
+    });
+
+    const data = response?.data || {};
+    const success = Boolean(data.success);
+    const score = Number(data.score || 0);
+    const action = String(data.action || '');
+
+    if (!success) {
+      res.status(403).json({ ok: false, message: 'Captcha tidak valid' });
+      return;
+    }
+    if (expectedAction && action && action !== expectedAction) {
+      res.status(403).json({ ok: false, score, action, message: 'Captcha action mismatch' });
+      return;
+    }
+    if (!Number.isFinite(score) || score < minScore) {
+      res.status(403).json({ ok: false, score, action, message: 'Skor captcha terlalu rendah' });
+      return;
+    }
+
+    res.status(200).json({ ok: true, score, action });
+  } catch (error: any) {
+    console.error('[reCAPTCHA Verify] Error:', error?.message || error);
+    res.status(500).json({ ok: false, message: 'Gagal verifikasi captcha' });
+  }
+});
+
 app.get('/api/download', async (req, res) => {
   try {
     const rawUrl = String(req.query.url || '').trim();
