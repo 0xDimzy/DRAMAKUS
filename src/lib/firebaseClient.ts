@@ -163,10 +163,6 @@ export const saveUserProfileToCloud = async (uid: string, profile: FirebaseUserP
   const db = getDb();
   if (!db) return;
 
-  const ref = db.collection('users').doc(uid);
-  const existingSnap = await ref.get();
-  const existing = existingSnap.exists ? existingSnap.data() : null;
-
   const payload: Record<string, any> = {
     name: String(profile.name).trim(),
     email: String(profile.email).trim().toLowerCase(),
@@ -177,11 +173,8 @@ export const saveUserProfileToCloud = async (uid: string, profile: FirebaseUserP
     payload.picture = String(profile.picture).trim();
   }
 
-  if (!existingSnap.exists || !existing?.role) {
-    payload.role = DEFAULT_ROLE;
-  }
-
-  await ref.set(payload, { merge: true });
+  // Never write role from client login flow to avoid accidental downgrade.
+  await db.collection('users').doc(uid).set(payload, { merge: true });
 };
 
 export const loadUserProfileFromCloud = async (uid: string): Promise<CloudUserProfile | null> => {
