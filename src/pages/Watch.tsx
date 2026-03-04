@@ -34,9 +34,11 @@ export default function Watch() {
   const [videoLoading, setVideoLoading] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showMobileEpisodeNav, setShowMobileEpisodeNav] = useState(true);
+  const [showTopControls, setShowTopControls] = useState(true);
   const [dramaInfo, setDramaInfo] = useState<Drama | null>(null);
   const lastSavedSecondRef = useRef(0);
   const mobileNavHideTimeoutRef = useRef<number | null>(null);
+  const topControlsHideTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const loadEpisodes = async () => {
@@ -99,6 +101,9 @@ export default function Watch() {
       if (mobileNavHideTimeoutRef.current) {
         window.clearTimeout(mobileNavHideTimeoutRef.current);
       }
+      if (topControlsHideTimeoutRef.current) {
+        window.clearTimeout(topControlsHideTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -108,6 +113,10 @@ export default function Watch() {
     revealMobileEpisodeNav();
   }, [currentEpisode?.id]);
 
+  useEffect(() => {
+    revealTopControls();
+  }, [currentEpisode?.id]);
+
   const revealMobileEpisodeNav = () => {
     setShowMobileEpisodeNav(true);
     if (mobileNavHideTimeoutRef.current) {
@@ -115,6 +124,16 @@ export default function Watch() {
     }
     mobileNavHideTimeoutRef.current = window.setTimeout(() => {
       setShowMobileEpisodeNav(false);
+    }, 2500);
+  };
+
+  const revealTopControls = () => {
+    setShowTopControls(true);
+    if (topControlsHideTimeoutRef.current) {
+      window.clearTimeout(topControlsHideTimeoutRef.current);
+    }
+    topControlsHideTimeoutRef.current = window.setTimeout(() => {
+      setShowTopControls(false);
     }, 2500);
   };
 
@@ -223,12 +242,21 @@ export default function Watch() {
   return (
     <div
       className="fixed inset-0 w-full bg-black overflow-hidden group"
-      onTouchStart={revealMobileEpisodeNav}
-      onClick={revealMobileEpisodeNav}
+      onTouchStart={() => {
+        revealMobileEpisodeNav();
+        revealTopControls();
+      }}
+      onMouseMove={revealTopControls}
+      onClick={() => {
+        revealMobileEpisodeNav();
+        revealTopControls();
+      }}
     >
       <button
         onClick={() => navigate(`/detail/${encodeURIComponent(decodedId)}`, { state: { drama: getBackDramaState() } })}
-        className="absolute left-4 top-[calc(env(safe-area-inset-top)+1rem)] z-50 flex items-center gap-2 px-4 py-2 bg-black/60 rounded-full text-white hover:bg-white/20 transition"
+        className={`absolute left-4 top-[calc(env(safe-area-inset-top)+1rem)] z-50 flex items-center gap-2 px-4 py-2 bg-black/60 rounded-full text-white hover:bg-white/20 transition-all duration-300 ${
+          showTopControls ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
+        }`}
       >
         <ArrowLeft className="w-6 h-6" />
         <span className="text-sm font-semibold">Kembali</span>
@@ -269,8 +297,11 @@ export default function Watch() {
         onClick={() => {
           setShowSidebar(!showSidebar);
           revealMobileEpisodeNav();
+          revealTopControls();
         }}
-        className="absolute right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-50 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"
+        className={`absolute right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-50 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition-all duration-300 ${
+          showTopControls ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
+        }`}
       >
         <List className="w-6 h-6" />
       </button>
