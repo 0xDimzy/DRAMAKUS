@@ -15,7 +15,7 @@ import DubIndo from './pages/DubIndo';
 import UserPage from './pages/User';
 import SettingsPage from './pages/Settings';
 import ReportIssuePage from './pages/ReportIssue';
-import AdminUsersPage from './pages/AdminUsers';
+import AdminUsers from "./pages/AdminUsers";
 
 export default function App() {
   return (
