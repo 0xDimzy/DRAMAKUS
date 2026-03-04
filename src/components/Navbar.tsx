@@ -71,7 +71,10 @@ export default function Navbar() {
         }
 
         const currentRole = useStore.getState().user?.role;
-        const resolvedRole = cloudProfile?.role || currentRole || 'member';
+        const resolvedRole =
+          cloudProfile?.role === 'admin' || cloudProfile?.role === 'vip' || cloudProfile?.role === 'member'
+            ? cloudProfile.role
+            : currentRole || 'member';
 
         login({
           uid: firebaseUser.uid,
