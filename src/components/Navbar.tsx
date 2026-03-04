@@ -6,6 +6,7 @@ import { useStore } from '../store/useStore';
 import {
   initializeFirebase,
   loadContinueWatchingFromCloud,
+  loadUserProfileFromCloud,
   onFirebaseAuthState,
   saveUserProfileToCloud,
   signInWithFirebaseGoogle,
@@ -23,6 +24,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, login, logout, platform, setPlatform, setContinueWatchingForCurrentUser } = useStore();
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,13 +53,6 @@ export default function Navbar() {
           return;
         }
 
-        login({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          name: firebaseUser.displayName || firebaseUser.email,
-          picture: firebaseUser.photoURL || undefined,
-        });
-
         try {
           await saveUserProfileToCloud(firebaseUser.uid, {
             name: firebaseUser.displayName || firebaseUser.email,
@@ -67,6 +62,21 @@ export default function Navbar() {
         } catch (error) {
           console.error('Failed to save user profile to cloud', error);
         }
+
+        let cloudProfile: Awaited<ReturnType<typeof loadUserProfileFromCloud>> = null;
+        try {
+          cloudProfile = await loadUserProfileFromCloud(firebaseUser.uid);
+        } catch (error) {
+          console.error('Failed to load user profile from cloud', error);
+        }
+
+        login({
+          uid: firebaseUser.uid,
+          email: cloudProfile?.email || firebaseUser.email,
+          name: cloudProfile?.name || firebaseUser.displayName || firebaseUser.email,
+          picture: cloudProfile?.picture || firebaseUser.photoURL || undefined,
+          role: cloudProfile?.role || 'member',
+        });
 
         try {
           const cloudEntries = await loadContinueWatchingFromCloud(firebaseUser.uid);
@@ -130,6 +140,7 @@ export default function Navbar() {
     { name: 'Dub Indo', path: '/dubindo' },
     { name: 'My List', path: '/mylist' },
     { name: 'Report Kendala', path: '/report' },
+    ...(isAdmin ? [{ name: 'Admin', path: '/admin/users' }] : []),
   ];
   return (
     <nav
@@ -213,11 +224,17 @@ export default function Navbar() {
                       <div className="px-4 py-3 text-sm text-gray-300 border-b border-gray-800 mb-1">
                         Signed in as <span className="font-bold text-white block mt-1">{user.name}</span>
                         <span className="text-xs text-gray-500 block mt-1">{user.email}</span>
+                        <span className="mt-1 inline-block rounded bg-gray-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-400">
+                          {user.role}
+                        </span>
                       </div>
                       <Link to="/mylist" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">My List</Link>
                       <Link to="/report" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">Report Kendala</Link>
                       <Link to="/user" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">User Page</Link>
                       <Link to="/settings" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">Settings</Link>
+                      {isAdmin && (
+                        <Link to="/admin/users" className="block px-4 py-2 text-sm text-amber-300 hover:bg-gray-800 hover:text-amber-200 transition-colors">Admin Users</Link>
+                      )}
                       <button onClick={handleLogout} disabled={authBusy} className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-800 transition-colors disabled:opacity-60">Sign out</button>
                     </>
                   ) : (
@@ -294,10 +311,12 @@ export default function Navbar() {
                   <div className="rounded-lg border border-gray-800 bg-black/30 p-3">
                     <p className="text-sm text-white font-semibold">{user.name}</p>
                     <p className="text-xs text-gray-500 mt-1">{user.email}</p>
-                    <div className="mt-3 grid grid-cols-3 gap-2">
+                    <p className="mt-1 inline-block rounded bg-gray-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-400">{user.role}</p>
+                    <div className={`mt-3 grid gap-2 ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
                       <Link to="/user" onClick={() => setIsMobileMenuOpen(false)} className="rounded-md border border-gray-700 px-3 py-2 text-center text-xs text-gray-200">User</Link>
                       <Link to="/report" onClick={() => setIsMobileMenuOpen(false)} className="rounded-md border border-gray-700 px-3 py-2 text-center text-xs text-gray-200">Report</Link>
                       <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} className="rounded-md border border-gray-700 px-3 py-2 text-center text-xs text-gray-200">Settings</Link>
+                      {isAdmin && <Link to="/admin/users" onClick={() => setIsMobileMenuOpen(false)} className="rounded-md border border-amber-600/60 px-3 py-2 text-center text-xs text-amber-300">Admin</Link>}
                     </div>
                     <button onClick={handleLogout} disabled={authBusy} className="mt-3 w-full rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60">Sign out</button>
                   </div>
