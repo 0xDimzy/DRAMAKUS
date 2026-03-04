@@ -311,22 +311,12 @@ export const clearContinueWatchingInCloud = async (uid: string) => {
   await batch.commit();
 };
 
-const assertAdmin = async (uid: string) => {
+const getDbOrThrow = async () => {
   const ok = await initializeFirebase();
   if (!ok) throw new Error('Firebase not ready');
 
   const db = getDb();
   if (!db) throw new Error('Database not ready');
-
-  const currentUserSnap = await db.collection('users').doc(uid).get();
-  if (!currentUserSnap.exists) {
-    throw new Error(`Dokumen users/${uid} tidak ditemukan.`);
-  }
-
-  const role = String(currentUserSnap.data()?.role || '').trim().toLowerCase();
-  if (role !== 'admin') {
-    throw new Error(`Role pada users/${uid} adalah "${role || 'kosong'}", bukan "admin".`);
-  }
 
   return db;
 };
@@ -342,7 +332,7 @@ export type AdminUserItem = {
 
 export const loadUsersForAdmin = async (uid: string): Promise<AdminUserItem[]> => {
   if (!uid) return [];
-  const db = await assertAdmin(uid);
+  const db = await getDbOrThrow();
 
   try {
     const snap = await db.collection('users').limit(500).get();
@@ -370,7 +360,7 @@ export const loadUsersForAdmin = async (uid: string): Promise<AdminUserItem[]> =
 
 export const updateUserRoleByAdmin = async (adminUid: string, targetUid: string, role: UserRole) => {
   if (!adminUid || !targetUid) return;
-  const db = await assertAdmin(adminUid);
+  const db = await getDbOrThrow();
 
   const nextRole = normalizeRole(role);
   await db.collection('users').doc(targetUid).set(
