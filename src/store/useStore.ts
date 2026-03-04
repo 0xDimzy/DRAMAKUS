@@ -7,12 +7,14 @@ import {
 } from '../lib/firebaseClient';
 
 export type Platform = 'dramabox' | 'melolo' | 'netshort' | 'reelife';
+export type UserRole = 'member' | 'vip' | 'admin';
 
 export interface UserProfile {
   uid?: string;
   name: string;
   email: string;
   picture?: string;
+  role: UserRole;
 }
 
 export interface ContinueWatchingEntry {
@@ -51,7 +53,7 @@ interface StoreState {
 }
 
 const CONTINUE_PROGRESS_MIN_SECONDS = 1;
-const storageVersion = 4;
+const storageVersion = 5;
 
 const getUserKey = (user: UserProfile | null) => user?.email?.toLowerCase() || 'guest';
 const PLACEHOLDER_POSTER = '/images/placeholder-poster.svg';
@@ -309,6 +311,15 @@ export const useStore = create<StoreState>()(
 
           return {
             ...persistedState,
+            user: persistedState?.user
+              ? {
+                  ...persistedState.user,
+                  role:
+                    persistedState?.user?.role === 'admin' || persistedState?.user?.role === 'vip'
+                      ? persistedState.user.role
+                      : 'member',
+                }
+              : null,
             myList: Array.isArray(persistedState.myList)
               ? persistedState.myList.map((item: any) => ({
                   ...item,
@@ -319,7 +330,18 @@ export const useStore = create<StoreState>()(
           };
         }
 
-        return persistedState;
+        return {
+          ...persistedState,
+          user: persistedState?.user
+            ? {
+                ...persistedState.user,
+                role:
+                  persistedState?.user?.role === 'admin' || persistedState?.user?.role === 'vip'
+                    ? persistedState.user.role
+                    : 'member',
+              }
+            : null,
+        };
       },
     }
   )
