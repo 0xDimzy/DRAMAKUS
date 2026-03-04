@@ -1,4 +1,4 @@
-# Dramabox Netflix Clone
+# Dramabox Clone
 
 This is a Netflix-style streaming application built with React, Vite, Tailwind CSS, and Express.
 
@@ -37,7 +37,14 @@ This is a Netflix-style streaming application built with React, Vite, Tailwind C
     VITE_FIREBASE_APP_ID=your_app_id
     VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
     VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+    VITE_RECAPTCHA_SITE_KEY=your_recaptcha_v3_site_key
+    RECAPTCHA_SECRET_KEY=your_recaptcha_v3_secret_key
+    RECAPTCHA_MIN_SCORE=0.5
     ```
+
+    Note:
+    - Use Google reCAPTCHA v3 (auto verification, no image challenge by default).
+    - `RECAPTCHA_SECRET_KEY` is server-only; do not expose it in client code.
 
 3.  **Run Development Server**:
     ```bash
