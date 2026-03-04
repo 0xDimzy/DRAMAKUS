@@ -1,4 +1,4 @@
-import type { ContinueWatchingEntry } from '../store/useStore';
+import type { ContinueWatchingEntry, UserRole } from '../store/useStore';
 
 const FIREBASE_SDK_VERSION = '10.14.1';
 const SDK_BASE = `https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}`;
@@ -17,6 +17,14 @@ type FirebaseAuthUser = {
   photoURL?: string | null;
 };
 
+type CloudUserProfile = {
+  name: string;
+  email: string;
+  picture?: string;
+  role: UserRole;
+  updatedAt: number;
+};
+
 type FirebaseUserProfilePayload = {
   name: string;
   email: string;
@@ -32,6 +40,13 @@ type ReportPayload = {
 
 let initialized = false;
 let initPromise: Promise<boolean> | null = null;
+const DEFAULT_ROLE: UserRole = 'member';
+
+const normalizeRole = (role: unknown): UserRole => {
+  const value = String(role || '').trim().toLowerCase();
+  if (value === 'admin' || value === 'vip') return value;
+  return DEFAULT_ROLE;
+};
 
 const loadScript = (src: string) =>
   new Promise<void>((resolve, reject) => {
@@ -148,6 +163,10 @@ export const saveUserProfileToCloud = async (uid: string, profile: FirebaseUserP
   const db = getDb();
   if (!db) return;
 
+  const ref = db.collection('users').doc(uid);
+  const existingSnap = await ref.get();
+  const existing = existingSnap.exists ? existingSnap.data() : null;
+
   const payload: Record<string, any> = {
     name: String(profile.name).trim(),
     email: String(profile.email).trim().toLowerCase(),
@@ -158,7 +177,32 @@ export const saveUserProfileToCloud = async (uid: string, profile: FirebaseUserP
     payload.picture = String(profile.picture).trim();
   }
 
-  await db.collection('users').doc(uid).set(payload, { merge: true });
+  if (!existingSnap.exists || !existing?.role) {
+    payload.role = DEFAULT_ROLE;
+  }
+
+  await ref.set(payload, { merge: true });
+};
+
+export const loadUserProfileFromCloud = async (uid: string): Promise<CloudUserProfile | null> => {
+  if (!uid) return null;
+  const ok = await initializeFirebase();
+  if (!ok) return null;
+
+  const db = getDb();
+  if (!db) return null;
+
+  const snap = await db.collection('users').doc(uid).get();
+  if (!snap.exists) return null;
+  const data = snap.data() || {};
+
+  return {
+    name: String(data.name || '').trim(),
+    email: String(data.email || '').trim().toLowerCase(),
+    picture: data.picture ? String(data.picture).trim() : undefined,
+    role: normalizeRole(data.role),
+    updatedAt: Number(data.updatedAt || 0),
+  };
 };
 
 export const onFirebaseAuthState = async (cb: (user: FirebaseAuthUser | null) => void) => {
@@ -268,4 +312,63 @@ export const clearContinueWatchingInCloud = async (uid: string) => {
   const batch = db.batch();
   snap.docs.forEach((doc: any) => batch.delete(doc.ref));
   await batch.commit();
+};
+
+const assertAdmin = async (uid: string) => {
+  const ok = await initializeFirebase();
+  if (!ok) throw new Error('Firebase not ready');
+
+  const db = getDb();
+  if (!db) throw new Error('Database not ready');
+
+  const currentUserSnap = await db.collection('users').doc(uid).get();
+  const role = normalizeRole(currentUserSnap.data()?.role);
+  if (role !== 'admin') {
+    throw new Error('Akses admin diperlukan');
+  }
+
+  return db;
+};
+
+export type AdminUserItem = {
+  uid: string;
+  name: string;
+  email: string;
+  picture?: string;
+  role: UserRole;
+  updatedAt: number;
+};
+
+export const loadUsersForAdmin = async (uid: string): Promise<AdminUserItem[]> => {
+  if (!uid) return [];
+  const db = await assertAdmin(uid);
+
+  const snap = await db.collection('users').get();
+  return snap.docs
+    .map((doc: any) => {
+      const data = doc.data() || {};
+      return {
+        uid: String(doc.id),
+        name: String(data.name || '').trim() || 'Tanpa Nama',
+        email: String(data.email || '').trim().toLowerCase(),
+        picture: data.picture ? String(data.picture).trim() : undefined,
+        role: normalizeRole(data.role),
+        updatedAt: Number(data.updatedAt || 0),
+      } satisfies AdminUserItem;
+    })
+    .sort((a, b) => b.updatedAt - a.updatedAt);
+};
+
+export const updateUserRoleByAdmin = async (adminUid: string, targetUid: string, role: UserRole) => {
+  if (!adminUid || !targetUid) return;
+  const db = await assertAdmin(adminUid);
+
+  const nextRole = normalizeRole(role);
+  await db.collection('users').doc(targetUid).set(
+    {
+      role: nextRole,
+      updatedAt: Date.now(),
+    },
+    { merge: true }
+  );
 };
