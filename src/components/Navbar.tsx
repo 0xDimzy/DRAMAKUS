@@ -14,6 +14,11 @@ import {
 } from '../lib/firebaseClient';
 import { updateLogs } from '../data/updateLogs';
 
+type ToastState = {
+  type: 'success' | 'error';
+  message: string;
+};
+
 export default function Navbar() {
   const supportUrl = 'https://tiptap.gg/kusuma/tip';
   const [isScrolled, setIsScrolled] = useState(false);
@@ -21,6 +26,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [authBusy, setAuthBusy] = useState(false);
   const [firebaseReady, setFirebaseReady] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, login, logout, platform, setPlatform, setContinueWatchingForCurrentUser } = useStore();
@@ -102,6 +108,12 @@ export default function Navbar() {
     };
   }, [login, logout, setContinueWatchingForCurrentUser]);
 
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 2500);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
   const handlePlatformChange = (newPlatform: 'dramabox' | 'melolo' | 'netshort' | 'reelife') => {
     setPlatform(newPlatform);
     setIsMobileMenuOpen(false);
@@ -119,10 +131,16 @@ export default function Navbar() {
   const handleLogin = async () => {
     setAuthBusy(true);
     try {
-      await signInWithFirebaseGoogle();
+      const result = await signInWithFirebaseGoogle();
+      if (result?.uid) {
+        setToast({ type: 'success', message: 'Login berhasil.' });
+      } else {
+        setToast({ type: 'error', message: 'Login gagal. Coba lagi.' });
+      }
       setIsMobileMenuOpen(false);
     } catch (error) {
       console.error('Firebase login failed', error);
+      setToast({ type: 'error', message: 'Login gagal. Popup ditutup atau terjadi error.' });
     } finally {
       setAuthBusy(false);
     }
@@ -133,8 +151,10 @@ export default function Navbar() {
     try {
       await signOutFirebase();
       logout();
+      setToast({ type: 'success', message: 'Logout berhasil.' });
     } catch (error) {
       console.error('Firebase logout failed', error);
+      setToast({ type: 'error', message: 'Logout gagal. Coba lagi.' });
     } finally {
       setAuthBusy(false);
     }
@@ -154,6 +174,19 @@ export default function Navbar() {
         isScrolled ? 'bg-black/95 shadow-lg' : 'bg-gradient-to-b from-black/80 to-transparent'
       }`}
     >
+      {toast && (
+        <div className="pointer-events-none fixed right-4 top-[calc(env(safe-area-inset-top)+1rem)] z-[100]">
+          <div
+            className={`rounded-md border px-4 py-2 text-sm font-semibold shadow-xl ${
+              toast.type === 'success'
+                ? 'border-emerald-400/30 bg-emerald-500/90 text-white'
+                : 'border-red-400/30 bg-red-600/90 text-white'
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <div className="flex items-center">
