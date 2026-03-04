@@ -136,7 +136,7 @@ export default function AdminUsersPage() {
                   <th className="px-4 py-3 text-left">Nama</th>
                   <th className="px-4 py-3 text-left">Email</th>
                   <th className="px-4 py-3 text-left">Role</th>
-                  <th className="px-4 py-3 text-left">Updated (WIB)</th>
+                  <th className="px-4 py-3 text-left">Last Login</th>
                   <th className="px-4 py-3 text-left">Aksi</th>
                 </tr>
               </thead>
