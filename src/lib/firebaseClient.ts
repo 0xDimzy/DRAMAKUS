@@ -21,7 +21,7 @@ type CloudUserProfile = {
   name: string;
   email: string;
   picture?: string;
-  role: UserRole;
+  role?: UserRole;
   updatedAt: number;
 };
 
@@ -188,12 +188,16 @@ export const loadUserProfileFromCloud = async (uid: string): Promise<CloudUserPr
   const snap = await db.collection('users').doc(uid).get();
   if (!snap.exists) return null;
   const data = snap.data() || {};
+  const rawRole = String(data.role || '').trim().toLowerCase();
+  const role = rawRole === 'admin' || rawRole === 'vip' || rawRole === 'member'
+    ? (rawRole as UserRole)
+    : undefined;
 
   return {
     name: String(data.name || '').trim(),
     email: String(data.email || '').trim().toLowerCase(),
     picture: data.picture ? String(data.picture).trim() : undefined,
-    role: normalizeRole(data.role),
+    ...(role ? { role } : {}),
     updatedAt: Number(data.updatedAt || 0),
   };
 };
