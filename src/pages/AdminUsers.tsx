@@ -30,10 +30,10 @@ export default function AdminUsersPage() {
         const rows = await loadUsersForAdmin(user.uid);
         if (!mounted) return;
         setUsers(rows);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to load users', err);
         if (!mounted) return;
-        setError('Gagal mengambil data user dari database.');
+        setError(err?.message || 'Gagal mengambil data user dari database.');
       } finally {
         if (mounted) setLoading(false);
       }
