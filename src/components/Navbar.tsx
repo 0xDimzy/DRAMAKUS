@@ -115,6 +115,38 @@ export default function Navbar() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    if (typeof window === 'undefined') return;
+
+    const scrollY = window.scrollY;
+    const originalStyle = {
+      position: document.body.style.position,
+      top: document.body.style.top,
+      left: document.body.style.left,
+      right: document.body.style.right,
+      width: document.body.style.width,
+      overflow: document.body.style.overflow,
+    };
+
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.position = originalStyle.position;
+      document.body.style.top = originalStyle.top;
+      document.body.style.left = originalStyle.left;
+      document.body.style.right = originalStyle.right;
+      document.body.style.width = originalStyle.width;
+      document.body.style.overflow = originalStyle.overflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isMobileMenuOpen]);
+
   const handlePlatformChange = (newPlatform: 'dramabox' | 'melolo' | 'netshort' | 'reelife') => {
     setPlatform(newPlatform);
     setIsMobileMenuOpen(false);
@@ -319,8 +351,8 @@ export default function Navbar() {
 
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="md:hidden bg-[#141414]/98 backdrop-blur-xl border-b border-gray-800">
-            <div className="px-4 pt-4 pb-6 space-y-2">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="md:hidden fixed inset-x-0 top-16 bottom-0 overflow-y-auto overscroll-contain bg-[#141414]/98 backdrop-blur-xl border-b border-gray-800 z-50">
+            <div className="px-4 pt-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] space-y-2">
               <div className="flex bg-gray-900 p-1 rounded-lg border border-gray-800 mb-4">
                 <button onClick={() => handlePlatformChange('dramabox')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${platform === 'dramabox' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-400'}`}>Dramabox</button>
                 <button onClick={() => handlePlatformChange('melolo')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${platform === 'melolo' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-400'}`}>Melolo</button>
