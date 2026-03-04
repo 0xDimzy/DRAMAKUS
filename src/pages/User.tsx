@@ -47,6 +47,9 @@ export default function UserPage() {
               <div>
                 <p className="text-white text-xl font-semibold">{user.name}</p>
                 <p className="text-gray-400 text-sm">{user.email}</p>
+                <p className="mt-2 inline-block rounded bg-gray-800 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-red-400">
+                  Role: {user.role}
+                </p>
               </div>
             </div>
 
