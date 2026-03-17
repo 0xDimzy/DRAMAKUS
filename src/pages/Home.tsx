@@ -10,6 +10,7 @@ import { useStore } from '../store/useStore';
 export default function Home() {
   const navigate = useNavigate();
   const { platform, getContinueWatchingForCurrentUser } = useStore();
+  const [showMaintenanceBanner, setShowMaintenanceBanner] = useState(true);
   const [catalogPage, setCatalogPage] = useState(1);
   const [catalogMovies, setCatalogMovies] = useState<Drama[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
@@ -119,6 +120,21 @@ export default function Home() {
       <main className="relative pb-24">
         <Hero key={`hero-${platform}`} />
         <div className="px-4 lg:px-10 -mt-10 md:-mt-20 relative z-20 space-y-6">
+          {showMaintenanceBanner && (
+            <div className="flex justify-center">
+              <div className="relative w-full max-w-3xl rounded-xl border border-amber-500/40 bg-amber-500/10 px-5 py-4 text-center text-sm text-amber-100 shadow-lg shadow-black/20">
+                <button
+                  type="button"
+                  aria-label="Tutup banner"
+                  onClick={() => setShowMaintenanceBanner(false)}
+                  className="absolute right-3 top-3 text-amber-100/80 hover:text-amber-100"
+                >
+                  X
+                </button>
+                Akhir Bulan Ada Proses Perbaikan / Maintenance, jadi semua film tidak bisa diputar
+              </div>
+            </div>
+          )}
           {continueWatchingItems.length > 0 && (
             <section className="space-y-3">
               <h2 className="text-xl md:text-2xl font-bold text-white">Lanjut Nonton</h2>
