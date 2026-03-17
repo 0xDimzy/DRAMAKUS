@@ -142,7 +142,10 @@ const normalizeTimestampToMs = (value: any): number => {
   return 0;
 };
 
+const GEOLOCATION_ENABLED = false; // Temporary: disable location access without removing the flow.
+
 const getCurrentGeoPoint = async (): Promise<any | null> => {
+  if (!GEOLOCATION_ENABLED) return null;
   if (typeof navigator === 'undefined' || !navigator.geolocation) return null;
   const GeoPoint = getGeoPointCtor();
   if (!GeoPoint) return null;
